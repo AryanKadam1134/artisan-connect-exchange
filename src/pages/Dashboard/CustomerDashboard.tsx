@@ -105,13 +105,13 @@ const CustomerDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50/50">
       {/* Navigation Bar */}
-      <div className="sticky top-0 z-50 bg-white border-b shadow-sm">
+      <div className="sticky top-0 z-50 glass-effect">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center flex-1 gap-8">
-              <h1 className="text-xl font-semibold text-primary-600">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 text-transparent bg-clip-text">
                 Artisan Connect
               </h1>
               <div className="flex-1 max-w-2xl">
@@ -164,41 +164,45 @@ const CustomerDashboard = () => {
             {filteredProducts.map((product) => (
               <Card
                 key={product.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow"
+                className="product-card overflow-hidden"
               >
                 {product.image && (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
+                  <div className="relative group">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => navigate(`/product/${product.id}`)}
+                        className="transform -translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  </div>
                 )}
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mb-3">
+                  <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
                     {product.description.length > 100
                       ? `${product.description.substring(0, 100)}...`
                       : product.description}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-primary-600">
+                    <span className="text-lg font-bold bg-gradient-to-r from-primary to-blue-600 text-transparent bg-clip-text">
                       ${product.price.toFixed(2)}
                     </span>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => navigate(`/product/${product.id}`)}
-                      >
-                        View Details
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => addToCart(product.id)}
-                      >
-                        Add to Cart
-                      </Button>
-                    </div>
+                    <Button
+                      size="sm"
+                      className="btn-gradient"
+                      onClick={() => addToCart(product.id)}
+                    >
+                      Add to Cart
+                    </Button>
                   </div>
                 </div>
               </Card>

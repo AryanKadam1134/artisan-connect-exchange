@@ -29,8 +29,8 @@ const Login = () => {
       navigate("/");
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Invalid email or password",
+        title: "Login Failed",
+        description: "The email or password you entered is incorrect. Please check your credentials and try again.",
         variant: "destructive",
       });
     } finally {

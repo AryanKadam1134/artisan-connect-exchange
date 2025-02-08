@@ -2,8 +2,8 @@
 
 A digital marketplace connecting artisans and customers through sustainable commerce.
 
-![Artisan Connect](![image](https://github.com/user-attachments/assets/636b8d8e-fd80-41de-a697-b3c03f0bffcc)
-)
+## Project Info:
+https://artisan-connect-exchange.vercel.app/
 
 ## ✨ Features
 

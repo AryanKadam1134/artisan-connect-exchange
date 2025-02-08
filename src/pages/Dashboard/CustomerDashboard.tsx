@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { formatPrice } from "@/utils/currency";
+import { Modal, ModalContent } from "@/components/ui/modal";
+import { DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface Product {
   id: string;
@@ -26,6 +28,7 @@ const CustomerDashboard = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Add handleSignOut function
   const handleSignOut = async () => {
@@ -105,6 +108,49 @@ const CustomerDashboard = () => {
     product.artisan.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const ProductDetailsModal = ({ product }: { product: Product }) => (
+    <ModalContent className="max-w-2xl">
+      <DialogTitle className="text-2xl font-bold mb-2">
+        {product.name}
+      </DialogTitle>
+      <DialogDescription className="text-gray-500 mb-4">
+        Product Details
+      </DialogDescription>
+      <div className="grid gap-6">
+        {product.image && (
+          <div className="aspect-video relative rounded-lg overflow-hidden">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div>
+          <p className="text-xl font-semibold text-primary-600 mb-4">
+            {formatPrice(product.price)}
+          </p>
+          <p className="text-gray-600 mb-4">{product.description}</p>
+          <div className="flex items-center justify-between border-t pt-4">
+            <div>
+              <p className="text-sm text-gray-500">Artisan</p>
+              <p className="font-medium">{product.artisan}</p>
+            </div>
+            <Button 
+              className="btn-gradient"
+              onClick={() => {
+                addToCart(product.id);
+                setSelectedProduct(null);
+              }}
+            >
+              Add to Cart
+            </Button>
+          </div>
+        </div>
+      </div>
+    </ModalContent>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50/50">
       {/* Navigation Bar */}
@@ -178,7 +224,7 @@ const CustomerDashboard = () => {
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => navigate(`/product/${product.id}`)}
+                        onClick={() => setSelectedProduct(product)}
                         className="transform -translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
                       >
                         View Details
@@ -211,6 +257,14 @@ const CustomerDashboard = () => {
           </div>
         )}
       </div>
+      {selectedProduct && (
+        <Modal 
+          open={!!selectedProduct} 
+          onOpenChange={(open) => !open && setSelectedProduct(null)}
+        >
+          <ProductDetailsModal product={selectedProduct} />
+        </Modal>
+      )}
     </div>
   );
 };

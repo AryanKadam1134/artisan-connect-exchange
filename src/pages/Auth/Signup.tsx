@@ -46,11 +46,32 @@ const Signup = () => {
       });
       navigate("/login");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create account. Please try again.",
-        variant: "destructive",
-      });
+      const errorMessage = error instanceof Error ? error.message : "Failed to create account. Please try again.";
+      
+      // If user already exists, suggest logging in
+      if (errorMessage.includes("already registered")) {
+        toast({
+          title: "Account Exists",
+          description: "This email is already registered. Please try logging in instead.",
+          variant: "destructive",
+          action: (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate("/login")}
+              className="ml-2"
+            >
+              Go to Login
+            </Button>
+          ),
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

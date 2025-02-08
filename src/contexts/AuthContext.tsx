@@ -70,27 +70,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signUp = async (email: string, password: string, role: "customer" | "artisan" | "farmer", name: string) => {
-    const { data: { user }, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    try {
+      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-    if (signUpError) throw signUpError;
-    if (!user) throw new Error("No user after sign up");
-
-    // Create user profile
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .insert([
-        {
-          id: user.id,
-          role,
-          name,
-          email
+      if (signUpError) {
+        if (signUpError.message === "User already registered") {
+          throw new Error("This email is already registered. Please try logging in instead.");
         }
-      ]);
+        throw signUpError;
+      }
+      
+      if (!user) throw new Error("No user after sign up");
 
-    if (profileError) throw profileError;
+      // Create user profile
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .insert([
+          {
+            id: user.id,
+            role,
+            name,
+            email
+          }
+        ]);
+
+      if (profileError) throw profileError;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error("An unexpected error occurred during sign up");
+    }
   };
 
   const signOut = async () => {

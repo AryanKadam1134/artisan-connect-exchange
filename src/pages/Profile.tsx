@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navbar } from "@/components/Navbar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Mail, Box, Edit } from "lucide-react";
+import { User, Mail, Box, Edit, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -74,7 +73,6 @@ const Profile = () => {
   if (!user || !profile) {
     return (
       <div className="min-h-screen bg-white">
-        <Navbar />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
           <Card className="p-6">
             <div className="text-center">Loading profile...</div>
@@ -85,19 +83,27 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900">Profile</h1>
-          <Button
-            variant="outline"
-            onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            {isEditing ? "Cancel" : "Edit Profile"}
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsEditing(!isEditing)}
+              className="flex items-center gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              {isEditing ? "Cancel" : "Edit Profile"}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate(user?.user_metadata.role === 'customer' ? '/dashboard/customer' : '/dashboard/business')}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
 
         <Card className="p-6 space-y-6">

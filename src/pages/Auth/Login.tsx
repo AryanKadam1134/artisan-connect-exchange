@@ -21,6 +21,10 @@ const Login = () => {
     setIsLoading(true);
     try {
       const user = await signIn(email, password);
+      if (!user?.role) {
+        throw new Error('Unable to determine user role');
+      }
+      
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",

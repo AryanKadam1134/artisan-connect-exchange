@@ -1,12 +1,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { Button } from "@/components/ui/button";
 
 interface Profile {
   id: string;
   name: string;
   role: "customer" | "artisan" | "farmer";
-  // Add other profile fields as needed
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface AuthContextType {
@@ -24,16 +26,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
 
-  // Add this function to fetch profile data
+  // Update the fetchProfile function
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      // First verify if profile exists
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('profiles')
+        .select('id, name, role')
+        .eq('id', userId)
+        .maybeSingle();
 
-    if (!error && data) {
-      setProfile(data);
+      if (checkError) {
+        console.error('Profile check error:', checkError.message);
+        return null;
+      }
+
+      // If profile doesn't exist, create one from user metadata
+      if (!existingProfile) {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!userData.user) return null;
+
+        const newProfile = {
+          id: userId,
+          name: userData.user.user_metadata.name || '',
+          role: userData.user.user_metadata.role || 'customer'
+        };
+
+        const { data: createdProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([newProfile])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Profile creation error:', createError.message);
+          return null;
+        }
+
+        const profile: Profile = {
+          id: createdProfile.id,
+          name: createdProfile.name,
+          role: createdProfile.role as "customer" | "artisan" | "farmer"
+        };
+
+        setProfile(profile);
+        return profile;
+      }
+
+      // Return existing profile
+      const profile: Profile = {
+        id: existingProfile.id,
+        name: existingProfile.name,
+        role: existingProfile.role as "customer" | "artisan" | "farmer"
+      };
+
+      setProfile(profile);
+      return profile;
+    } catch (error) {
+      console.error('Profile fetch error:', error);
+      return null;
     }
   };
 
@@ -57,6 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
+  // Update the signIn function
   const signIn = async (email: string, password: string) => {
     try {
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -65,27 +117,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (authError) throw authError;
+      if (!authData.user) throw new Error('No user data returned');
 
-      // Get user role from profiles table
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', authData.user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Profile fetch error:', profileError);
-        throw new Error('Failed to fetch user profile');
-      }
-
-      // Set user metadata with role
-      authData.user.user_metadata = { ...authData.user.user_metadata, role: profile.role };
+      // Set the user immediately
       setUser(authData.user);
 
-      return { ...authData.user, role: profile.role };
+      // Fetch profile with retries
+      let profileData = null;
+      let retries = 3;
+
+      while (retries > 0 && !profileData) {
+        profileData = await fetchProfile(authData.user.id);
+        if (!profileData) {
+          retries--;
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+      }
+
+      if (!profileData) {
+        // Try one last time to create profile
+        profileData = await fetchProfile(authData.user.id);
+        if (!profileData) {
+          throw new Error('Failed to fetch or create user profile');
+        }
+      }
+
+      // Update user metadata
+      authData.user.user_metadata = {
+        ...authData.user.user_metadata,
+        role: profileData.role,
+        name: profileData.name
+      };
+      
+      setUser(authData.user);
+      return { ...authData.user, role: profileData.role };
     } catch (error: any) {
       console.error('Sign in error:', error);
-      throw new Error(error.message);
+      throw error;
     }
   };
 
@@ -102,31 +172,48 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         password,
         options: {
           data: {
-            name: name,
-            role: role
+            name,
+            role
           }
         }
       });
 
       if (signUpError) throw signUpError;
+      if (!authData.user) throw new Error('No user data returned');
 
-      // Create profile for the new user
-      const { error: profileError } = await supabase
+      // Wait for trigger to execute
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Create profile manually if trigger fails
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .insert([
-          {
-            id: authData.user?.id,
-            role: role,
-            name: name
-          }
-        ]);
+        .select('*')
+        .eq('id', authData.user.id)
+        .single();
 
-      if (profileError) throw profileError;
+      if (!profile || profileError) {
+        // Manual profile creation
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: authData.user.id,
+              name,
+              role
+            }
+          ])
+          .single();
+
+        if (insertError) {
+          console.error('Profile creation error:', insertError);
+          throw new Error('Failed to create user profile');
+        }
+      }
 
       return authData;
     } catch (error: any) {
       console.error('Sign up error:', error);
-      throw new Error(error.message);
+      throw error;
     }
   };
 

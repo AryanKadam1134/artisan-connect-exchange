@@ -1,8 +1,6 @@
 
-import { createClient } from '@supabase/supabase-js';
+// This file is deprecated. Import the Supabase client from @/integrations/supabase/client instead:
+// import { supabase } from "@/integrations/supabase/client";
 
-const supabaseUrl = process.env.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '');
-
+import { supabase as supabaseClient } from "@/integrations/supabase/client";
+export const supabase = supabaseClient;

@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 
 const Signup = () => {
-  const [userType, setUserType] = useState<string>("");
+  const [userType, setUserType] = useState<"customer" | "artisan" | "farmer" | "">("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -39,7 +39,7 @@ const Signup = () => {
     
     setIsLoading(true);
     try {
-      await signUp(email, password, userType, name);
+      await signUp(email, password, userType as "customer" | "artisan" | "farmer", name);
       toast({
         title: "Welcome!",
         description: "Your account has been created successfully.",
@@ -65,7 +65,7 @@ const Signup = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="userType">I am a</Label>
-              <Select onValueChange={setUserType} required>
+              <Select onValueChange={(value: "customer" | "artisan" | "farmer") => setUserType(value)} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select account type" />
                 </SelectTrigger>

@@ -1,4 +1,4 @@
-# 🛍️ ArtisanBazaar
+# 🛍️ ArtisanConnect
 
 A digital marketplace connecting artisans and customers through sustainable commerce.
 
@@ -59,3 +59,15 @@ A digital marketplace connecting artisans and customers through sustainable comm
 1. Clone the repository:
 ```bash
 git clone https://github.com/AryanKadam1134/artisan-connect-exchange.git
+```
+
+2. Install npm:
+```bash
+npm install
+```
+
+3. Run:
+```bash
+npm run dev
+```
+

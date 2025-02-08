@@ -58,4 +58,4 @@ A digital marketplace connecting artisans and customers through sustainable comm
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/artisan-bazaar.git
+git clone [https://github.com/yourusername/artisan-bazaar.git](https://github.com/AryanKadam1134/artisan-connect-exchange.git)

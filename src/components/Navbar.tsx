@@ -1,12 +1,13 @@
 
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, ShoppingCart, User } from "lucide-react";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,12 +54,14 @@ export const Navbar = () => {
               variant="ghost"
               size="icon"
               className="text-gray-700 hover:text-primary-600"
+              onClick={() => navigate("/cart")}
             >
               <ShoppingCart className="h-5 w-5" />
             </Button>
             <Button
               variant="default"
               className="bg-primary-500 hover:bg-primary-600 text-white"
+              onClick={() => navigate("/login")}
             >
               Sign In
             </Button>
@@ -105,7 +108,7 @@ export const Navbar = () => {
               Cart
             </Link>
             <Link
-              to="/signin"
+              to="/login"
               className="block px-3 py-2 text-primary-600 hover:text-primary-700 transition-colors"
             >
               Sign In

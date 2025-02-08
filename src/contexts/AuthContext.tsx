@@ -1,14 +1,11 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { User } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 interface AuthContextType {
   user: User | null;
-  userRole: "customer" | "artisan" | "farmer" | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, role: "customer" | "artisan" | "farmer", name: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, role: "customer" | "artisan" | "farmer", name: string) => Promise<any>;
   signOut: () => Promise<void>;
 }
 
@@ -16,103 +13,100 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<"customer" | "artisan" | "farmer" | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check active sessions and subscribe to auth changes
+    // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        getUserRole(session.user.id);
-      }
     });
 
+    // Listen for changes on auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        getUserRole(session.user.id);
-      } else {
-        setUserRole(null);
-      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const getUserRole = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('id', userId)
-      .maybeSingle();
-    
-    if (error) {
-      console.error('Error fetching user role:', error);
-      setLoading(false);
-      return;
-    }
-    
-    if (data) {
-      setUserRole(data.role as "customer" | "artisan" | "farmer");
-    } else {
-      setUserRole(null);
-    }
-    setLoading(false);
-  };
-
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-  };
-
-  const signUp = async (email: string, password: string, role: "customer" | "artisan" | "farmer", name: string) => {
     try {
-      const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signUpError) {
-        if (signUpError.message === "User already registered") {
-          throw new Error("This email is already registered. Please try logging in instead.");
-        }
-        throw signUpError;
-      }
-      
-      if (!user) throw new Error("No user after sign up");
+      if (authError) throw authError;
 
-      // Create user profile
+      // Get user role from profiles table
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile fetch error:', profileError);
+        throw new Error('Failed to fetch user profile');
+      }
+
+      // Set user metadata with role
+      authData.user.user_metadata = { ...authData.user.user_metadata, role: profile.role };
+      setUser(authData.user);
+
+      return { ...authData.user, role: profile.role };
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      throw new Error(error.message);
+    }
+  };
+
+  const signUp = async (
+    email: string, 
+    password: string, 
+    role: "customer" | "artisan" | "farmer",
+    name: string
+  ) => {
+    try {
+      // Sign up the user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name,
+            role: role
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+
+      // Create profile for the new user
       const { error: profileError } = await supabase
-        .from('user_profiles')
+        .from('profiles')
         .insert([
           {
-            id: user.id,
-            role,
-            name,
-            email
+            id: authData.user?.id,
+            role: role,
+            name: name
           }
         ]);
 
       if (profileError) throw profileError;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error("An unexpected error occurred during sign up");
+
+      return authData;
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      throw new Error(error.message);
     }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    await supabase.auth.signOut();
   };
 
   return (
-    <AuthContext.Provider value={{ user, userRole, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
@@ -121,7 +115,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

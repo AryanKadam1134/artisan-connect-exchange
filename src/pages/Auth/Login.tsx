@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -21,16 +20,28 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signIn(email, password);
+      const user = await signIn(email, password);
       toast({
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      navigate("/");
-    } catch (error) {
+      
+      // Role-based routing
+      switch (user.role) {
+        case 'customer':
+          navigate('/dashboard/customer');
+          break;
+        case 'artisan':
+        case 'farmer':
+          navigate('/dashboard/business');
+          break;
+        default:
+          navigate('/');
+      }
+    } catch (error: any) {
       toast({
         title: "Login Failed",
-        description: "The email or password you entered is incorrect. Please check your credentials and try again.",
+        description: error.message || "An error occurred during login.",
         variant: "destructive",
       });
     } finally {

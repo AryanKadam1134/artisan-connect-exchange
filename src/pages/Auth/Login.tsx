@@ -26,7 +26,7 @@ const Login = () => {
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      navigate("/");
+      // The redirection will be handled by the AuthContext's onAuthStateChange
     } catch (error) {
       toast({
         title: "Login Failed",

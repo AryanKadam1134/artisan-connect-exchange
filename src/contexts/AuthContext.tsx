@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +19,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<"customer" | "artisan" | "farmer" | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const handleRoleBasedNavigation = (role: "customer" | "artisan" | "farmer" | null) => {
+    if (role === "customer") {
+      navigate("/dashboard/customer");
+    } else if (role === "artisan" || role === "farmer") {
+      navigate("/dashboard/business");
+    }
+  };
 
   useEffect(() => {
     // Check active sessions and subscribe to auth changes
@@ -34,11 +44,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         getUserRole(session.user.id);
       } else {
         setUserRole(null);
+        navigate("/login");
       }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const getUserRole = async (userId: string) => {
     const { data, error } = await supabase
@@ -54,7 +65,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     if (data) {
-      setUserRole(data.role as "customer" | "artisan" | "farmer");
+      const role = data.role as "customer" | "artisan" | "farmer";
+      setUserRole(role);
+      handleRoleBasedNavigation(role);
     } else {
       setUserRole(null);
     }

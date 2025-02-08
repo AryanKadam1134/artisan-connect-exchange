@@ -2,8 +2,11 @@
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -26,6 +29,7 @@ const Index = () => {
             <Button
               size="lg"
               className="bg-primary-500 hover:bg-primary-600 text-white px-8"
+              onClick={() => navigate("/products")}
             >
               Explore Products
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -34,6 +38,7 @@ const Index = () => {
               variant="outline"
               size="lg"
               className="border-primary-200 text-primary-600 hover:bg-primary-50"
+              onClick={() => navigate("/signup")}
             >
               Join as Artisan
             </Button>

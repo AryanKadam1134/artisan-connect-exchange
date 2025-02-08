@@ -1,69 +1,61 @@
-# Welcome to your Lovable project
+# 🛍️ ArtisanBazaar
 
-## Project info
+A digital marketplace connecting artisans and customers through sustainable commerce.
 
-**URL**: https://lovable.dev/projects/b8dc0f97-3dc6-4265-9692-2b98dc1f7261
+![Artisan Connect](![image](https://github.com/user-attachments/assets/636b8d8e-fd80-41de-a697-b3c03f0bffcc)
+)
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
+### 🎨 For Artisans & Farmers
+- 📝 Product Management
+  - Add, edit, and remove products
+  - Upload product images
+  - Set prices and descriptions
+- 📊 Business Dashboard
+  - Track product listings
+  - Manage inventory
+  - View sales analytics
 
-**Use Lovable**
+### 🛒 For Customers
+- 🔍 Product Discovery
+  - Browse artisanal products
+  - Search functionality
+  - Product categories
+- 🛍️ Shopping Features
+  - Add to cart
+  - View product details
+  - Real-time price updates
+  - Indian Rupee (₹) currency support
+- 👤 User Profile Management
+  - Personal information
+  - Order history
+  - Cart management
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b8dc0f97-3dc6-4265-9692-2b98dc1f7261) and start prompting.
+## 🚀 Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+### Frontend
+- ⚛️ React (Vite)
+- 📝 TypeScript
+- 🎨 Tailwind CSS
+- 🧩 shadcn/ui Components
+- 🔄 React Router DOM
 
-**Use your preferred IDE**
+### Backend & Database
+- 🔥 Supabase
+  - Authentication
+  - Database
+  - Storage (for images)
+  - Real-time updates
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### State Management & Utils
+- 🔄 React Context
+- 🎯 React Query
+- 📋 Form handling
+- 🌐 API integration
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Installation
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/b8dc0f97-3dc6-4265-9692-2b98dc1f7261) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/artisan-bazaar.git

@@ -46,104 +46,151 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold text-primary-700 hover:text-primary-600 transition-colors">
+            <Link 
+              to="/" 
+              className={`text-2xl font-bold transition-colors ${
+                isScrolled ? "text-primary-700" : "text-white"
+              }`}
+            >
               Artisan Connect
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link to="/products" className="text-gray-700 hover:text-primary-600 transition-colors">
-              Products
-            </Link>
-            <Link to="/about" className="text-gray-700 hover:text-primary-600 transition-colors">
-              About
-            </Link>
-            
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-700 hover:text-primary-600"
-                  onClick={() => navigate("/cart")}
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-gray-700 hover:text-primary-600"
-                  onClick={() => navigate("/profile")}
+                {user.user_metadata.role === 'customer' && (
+                  <Button 
+                    variant={isScrolled ? "ghost" : "secondary"} 
+                    size="icon" 
+                    onClick={() => navigate('/cart')}
+                    className={!isScrolled && "text-white hover:text-primary-700"}
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                  </Button>
+                )}
+                <Button 
+                  variant={isScrolled ? "ghost" : "secondary"} 
+                  size="icon" 
+                  onClick={() => navigate('/profile')}
+                  className={!isScrolled && "text-white hover:text-primary-700"}
                 >
                   <User className="h-5 w-5" />
                 </Button>
-                <Button
-                  variant="default"
-                  className="bg-primary-500 hover:bg-primary-600 text-white"
+                <Button 
+                  variant={isScrolled ? "outline" : "secondary"} 
                   onClick={handleSignOut}
+                  className={!isScrolled && "border-white text-white hover:bg-white hover:text-primary-700"}
                 >
+                  <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
                 </Button>
               </>
             ) : (
-              <Button
-                variant="default"
-                className="bg-primary-500 hover:bg-primary-600 text-white"
-                onClick={() => navigate("/login")}
-              >
-                Sign In
-              </Button>
+              <>
+                <Button 
+                  variant={isScrolled ? "ghost" : "secondary"} 
+                  onClick={() => navigate('/login')}
+                  className={!isScrolled ? "bg-white text-primary-700 hover:bg-white/90" : ""}
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  variant="secondary"
+                  onClick={() => navigate('/signup')}
+                  className="bg-white text-primary-700 hover:bg-white/90 border-2 border-white"
+                >
+                  Get Started
+                </Button>
+              </>
             )}
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <Button
-              variant="ghost"
+              variant={isScrolled ? "ghost" : "secondary"}
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-700"
+              className={!isScrolled && "text-white hover:bg-white hover:text-primary-700"}
             >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t animate-fadeIn">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link to="/products" className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors">
-              Products
-            </Link>
-            <Link to="/about" className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors">
-              About
-            </Link>
-            {user ? (
-              <>
-                <Link to="/cart" className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors">
-                  Cart
-                </Link>
-                <Link to="/profile" className="block px-3 py-2 text-gray-700 hover:text-primary-600 transition-colors">
-                  Profile
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="block w-full text-left px-3 py-2 text-primary-600 hover:text-primary-700 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <Link to="/login" className="block px-3 py-2 text-primary-600 hover:text-primary-700 transition-colors">
-                Sign In
-              </Link>
-            )}
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white/95 backdrop-blur-md rounded-b-lg shadow-lg">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {user ? (
+                <>
+                  {user.user_metadata.role === 'customer' && (
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        navigate('/cart');
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      <ShoppingCart className="h-5 w-5 mr-2" />
+                      Cart
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      navigate('/profile');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <User className="h-5 w-5 mr-2" />
+                    Profile
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-5 w-5 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start hover:bg-primary-50"
+                    onClick={() => {
+                      navigate('/login');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    variant="default"
+                    className="w-full justify-start bg-primary-600 text-white hover:bg-primary-700"
+                    onClick={() => {
+                      navigate('/signup');
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    Get Started
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 };

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface NewProduct {
   name: string;
@@ -18,6 +19,7 @@ interface NewProduct {
 const AddProduct = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [product, setProduct] = useState<NewProduct>({
@@ -43,7 +45,12 @@ const AddProduct = () => {
       // Validate price
       const priceValue = parseFloat(product.price);
       if (isNaN(priceValue) || priceValue < 0) {
-        throw new Error('Invalid price value');
+        toast({
+          title: "Invalid price",
+          description: "Please enter a valid price",
+          variant: "destructive"
+        });
+        return;
       }
 
       let imageUrl = "";
@@ -53,7 +60,7 @@ const AddProduct = () => {
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${user?.id}/${fileName}`;
 
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('product-images')
           .upload(filePath, imageFile);
 
@@ -81,15 +88,20 @@ const AddProduct = () => {
 
       if (error) throw error;
 
-      // Show success message
       toast({
         title: "Product added successfully",
-        description: "Your product has been listed",
+        description: `${product.name} has been added to your products`,
+        variant: "default"
       });
 
       navigate('/dashboard/business');
     } catch (error) {
       console.error('Error adding product:', error);
+      toast({
+        title: "Error adding product",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsLoading(false);
     }
@@ -125,7 +137,7 @@ const AddProduct = () => {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Price
+                Price (₹)
               </label>
               <Input
                 required
@@ -134,7 +146,7 @@ const AddProduct = () => {
                 min="0"
                 value={product.price}
                 onChange={(e) => setProduct({ ...product, price: e.target.value })}
-                placeholder="Enter price"
+                placeholder="Enter price in ₹"
               />
             </div>
 

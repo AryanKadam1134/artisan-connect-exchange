@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice } from "@/utils/currency";
 
 interface Product {
   id: string;
@@ -78,7 +79,7 @@ const ProductDetail = () => {
             <div className="flex justify-between items-start mb-4">
               <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
               <span className="text-2xl font-bold text-primary-600">
-                ${product.price.toFixed(2)}
+                {formatPrice(product.price)}
               </span>
             </div>
             <p className="text-gray-600 mb-6">{product.description}</p>

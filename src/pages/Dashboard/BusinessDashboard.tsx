@@ -5,6 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Package, BarChart, Users, PlusCircle, LogOut, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { Modal, ModalContent } from "@/components/ui/modal";
+import { formatPrice } from "@/utils/currency";
 
 interface Product {
   id: string;
@@ -19,8 +22,10 @@ interface Product {
 const BusinessDashboard = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -65,10 +70,20 @@ const BusinessDashboard = () => {
   
       if (error) throw error;
   
+      toast({
+        title: "Product deleted",
+        description: "The product has been removed successfully",
+      });
+
       // Refresh products list
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
+      toast({
+        title: "Error deleting product",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -95,6 +110,41 @@ const BusinessDashboard = () => {
       stats: "89 Total",
     }
   ];
+
+  const ProductDetailsModal = ({ product }: { product: Product }) => (
+    <ModalContent className="max-w-2xl">
+      <div className="grid gap-6">
+        {product.image && (
+          <div className="aspect-video relative rounded-lg overflow-hidden">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div>
+          <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
+          <p className="text-xl font-semibold text-primary-600 mb-4">
+            {formatPrice(product.price)}
+          </p>
+          <p className="text-gray-600 mb-4">{product.description}</p>
+          <div className="flex items-center justify-between border-t pt-4">
+            <div>
+              <p className="text-sm text-gray-500">Added by</p>
+              <p className="font-medium">{product.artisan}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Added on</p>
+              <p className="font-medium">
+                {new Date(product.created_at).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ModalContent>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -186,16 +236,19 @@ const BusinessDashboard = () => {
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-bold text-primary-600">
-                        ${product.price.toFixed(2)}
+                        {formatPrice(product.price)}
                       </span>
                       <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          onClick={() => navigate(`/product/${product.id}`)}
-                        >
-                          View Details
-                        </Button>
+                        <Modal open={selectedProduct?.id === product.id} onOpenChange={(open) => !open && setSelectedProduct(null)}>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => setSelectedProduct(product)}
+                          >
+                            View Details
+                          </Button>
+                          {selectedProduct && <ProductDetailsModal product={selectedProduct} />}
+                        </Modal>
                         <Button 
                           size="sm" 
                           variant="destructive" 

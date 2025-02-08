@@ -1,0 +1,22 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "profile": "Profile",
+    "cart": "Cart",
+    "search": "Search",
+    "products": "Products",
+    "addToCart": "Add to Cart",
+    "viewDetails": "View Details",
+    "price": "Price"
+  },
+  "dashboard": {
+    "orders": "Orders",
+    "customers": "Customers",
+    "addProduct": "Add Product",
+    "manageOrders": "Track and fulfill orders",
+    "manageCustomers": "View customer interactions",
+    "listProduct": "List a new product"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "common": {
+    "welcome": "स्वागत है",
+    "signIn": "साइन इन करें",
+    "signOut": "साइन आउट",
+    "profile": "प्रोफ़ाइल",
+    "cart": "कार्ट",
+    "search": "खोजें",
+    "products": "उत्पाद",
+    "addToCart": "कार्ट में जोड़ें",
+    "viewDetails": "विवरण देखें",
+    "price": "मूल्य"
+  },
+  "dashboard": {
+    "orders": "ऑर्डर",
+    "customers": "ग्राहक",
+    "addProduct": "उत्पाद जोड़ें",
+    "manageOrders": "ऑर्डर ट्रैक और पूरा करें",
+    "manageCustomers": "ग्राहक इंटरैक्शन देखें",
+    "listProduct": "नया उत्पाद सूचीबद्ध करें"
+  }
+}

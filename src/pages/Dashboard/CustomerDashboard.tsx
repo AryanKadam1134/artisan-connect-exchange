@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { formatPrice } from "@/utils/currency";
 
 interface Product {
   id: string;
@@ -194,7 +195,7 @@ const CustomerDashboard = () => {
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold bg-gradient-to-r from-primary to-blue-600 text-transparent bg-clip-text">
-                      ${product.price.toFixed(2)}
+                      {formatPrice(product.price)}
                     </span>
                     <Button
                       size="sm"

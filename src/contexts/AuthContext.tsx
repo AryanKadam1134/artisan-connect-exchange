@@ -8,7 +8,7 @@ interface AuthContextType {
   userRole: "customer" | "artisan" | "farmer" | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, role: string, name: string) => Promise<void>;
+  signUp: (email: string, password: string, role: "customer" | "artisan" | "farmer", name: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -44,11 +44,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data, error } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .single();
     
     if (data) {
-      setUserRole(data.role);
+      setUserRole(data.role as "customer" | "artisan" | "farmer");
     }
     setLoading(false);
   };
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (error) throw error;
   };
 
-  const signUp = async (email: string, password: string, role: string, name: string) => {
+  const signUp = async (email: string, password: string, role: "customer" | "artisan" | "farmer", name: string) => {
     const { data: { user }, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .from('user_profiles')
       .insert([
         {
-          user_id: user.id,
+          id: user.id,
           role,
           name,
           email
